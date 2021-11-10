@@ -14,14 +14,106 @@
 use super::super::{dbghelp, windows::*};
 use core::ffi::c_void;
 use core::mem;
+use core::hash::Hash;
 
-#[derive(Clone, Copy)]
+impl PartialEq<ADDRESS64> for ADDRESS64 {
+    fn eq(&self, other: &ADDRESS64) -> bool {
+        self.Offset == other.Offset && self.Segment == other.Segment && self.Mode == other.Mode
+    }
+}
+
+impl PartialEq<KDHELP64> for KDHELP64 {
+    fn eq(&self, other: &KDHELP64) -> bool {
+        self.Thread == other.Thread && self.ThCallbackStack == other.ThCallbackStack && self.ThCallbackBStore == other.ThCallbackBStore && self.NextCallback == other.NextCallback && self.FramePointer == other.FramePointer && self.KiCallUserMode == other.KiCallUserMode && self.KeUserCallbackDispatcher == other.KeUserCallbackDispatcher && self.SystemRangeStart == other.SystemRangeStart && self.KiUserExceptionDispatcher == other.KiUserExceptionDispatcher && self.StackBase == other.StackBase && self.StackLimit == other.StackLimit && self.BuildVersion == other.BuildVersion && self.Reserved0 == other.Reserved0 && self.Reserved1 == other.Reserved1
+    }
+}
+
+impl PartialEq<STACKFRAME_EX> for STACKFRAME_EX {
+    fn eq(&self, other: &STACKFRAME_EX) -> bool {
+        self.AddrPC == other.AddrPC && self.AddrReturn == other.AddrReturn && self.AddrFrame == other.AddrFrame && self.AddrStack == other.AddrStack && self.AddrBStore == other.AddrBStore && self.FuncTableEntry == other.FuncTableEntry && self.Params == other.Params && self.Far == other.Far && self.Virtual == other.Virtual && self.Reserved == other.Reserved && self.KdHelp == other.KdHelp && self.StackFrameSize == other.StackFrameSize && self.InlineFrameContext == other.InlineFrameContext
+    }
+}
+
+impl Hash for KDHELP64 {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.Thread.hash(state);
+        self.ThCallbackStack.hash(state);
+        self.ThCallbackBStore.hash(state);
+        self.NextCallback.hash(state);
+        self.FramePointer.hash(state);
+        self.KiCallUserMode.hash(state);
+        self.KeUserCallbackDispatcher.hash(state);
+        self.SystemRangeStart.hash(state);
+        self.KiUserExceptionDispatcher.hash(state);
+        self.StackBase.hash(state);
+        self.StackLimit.hash(state);
+        self.BuildVersion.hash(state);
+        self.Reserved0.hash(state);
+        self.Reserved1.hash(state);
+    }
+}
+
+impl Hash for STACKFRAME_EX {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.AddrPC.hash(state);
+        self.AddrReturn.hash(state);
+        self.AddrFrame.hash(state);
+        self.AddrStack.hash(state);
+        self.AddrBStore.hash(state);
+        self.FuncTableEntry.hash(state);
+        self.Params.hash(state);
+        self.Far.hash(state);
+        self.Virtual.hash(state);
+        self.Reserved.hash(state);
+        self.KdHelp.hash(state);
+        self.StackFrameSize.hash(state);
+        self.InlineFrameContext.hash(state);
+    }
+}
+
+impl PartialEq<STACKFRAME64> for STACKFRAME64 {
+    fn eq(&self, other: &STACKFRAME64) -> bool {
+        self.AddrPC == other.AddrPC && self.AddrReturn == other.AddrReturn && self.AddrFrame == other.AddrFrame && self.AddrStack == other.AddrStack && self.AddrBStore == other.AddrBStore && self.FuncTableEntry == other.FuncTableEntry && self.Params == other.Params && self.Far == other.Far && self.Virtual == other.Virtual && self.Reserved == other.Reserved && self.KdHelp == other.KdHelp
+    }
+}
+
+impl Hash for ADDRESS64 {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.Offset.hash(state);
+        self.Segment.hash(state);
+        self.Mode.hash(state);
+    }
+}
+
+impl Hash for STACKFRAME64 {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.AddrPC.hash(state);
+        self.AddrReturn.hash(state);
+        self.AddrFrame.hash(state);
+        self.AddrStack.hash(state);
+        self.AddrBStore.hash(state);
+        self.FuncTableEntry.hash(state);
+        self.Params.hash(state);
+        self.Far.hash(state);
+        self.Virtual.hash(state);
+        self.Reserved.hash(state);
+        //self.KdHelp.hash(state);
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum StackFrame {
     New(STACKFRAME_EX),
     Old(STACKFRAME64),
 }
 
-#[derive(Clone, Copy)]
+impl Hash for StackFrame {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        core::mem::discriminant(self).hash(state);
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Hash)]
 pub struct Frame {
     pub(crate) stack_frame: StackFrame,
     base_address: *mut c_void,

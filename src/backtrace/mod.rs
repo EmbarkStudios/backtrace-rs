@@ -72,7 +72,7 @@ pub unsafe fn trace_unsynchronized<F: FnMut(&Frame) -> bool>(mut cb: F) {
 /// The tracing function's closure will be yielded frames, and the frame is
 /// virtually dispatched as the underlying implementation is not always known
 /// until runtime.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Hash)]
 pub struct Frame {
     pub(crate) inner: FrameImp,
 }

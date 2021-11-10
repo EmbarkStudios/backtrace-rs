@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// This function requires the `std` feature of the `backtrace` crate to be
 /// enabled, and the `std` feature is enabled by default.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Hash)]
 #[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Backtrace {
@@ -45,13 +45,13 @@ fn _assert_send_sync() {
 ///
 /// This function requires the `std` feature of the `backtrace` crate to be
 /// enabled, and the `std` feature is enabled by default.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Hash)]
 pub struct BacktraceFrame {
     frame: Frame,
     symbols: Option<Vec<BacktraceSymbol>>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Hash)]
 enum Frame {
     Raw(crate::Frame),
     #[allow(dead_code)]
@@ -97,7 +97,7 @@ impl Frame {
 ///
 /// This function requires the `std` feature of the `backtrace` crate to be
 /// enabled, and the `std` feature is enabled by default.
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Hash)]
 #[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct BacktraceSymbol {
